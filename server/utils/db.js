@@ -1,4 +1,4 @@
-import supabase from "../config/supabase.js";
+import { supabase } from "../config/supabase.js";
 
 // User operations
 export const getUser = async (userId) => {

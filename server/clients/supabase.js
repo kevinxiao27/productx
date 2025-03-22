@@ -8,6 +8,4 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export default supabase;
+export const supabase = createClient(supabaseUrl, supabaseKey);

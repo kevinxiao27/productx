@@ -1,4 +1,4 @@
-import supabase from "../clients/supabase";
+import { supabase } from "../clients/supabase";
 
 // Upload video to Supabase Storage (backed by S3)
 export const uploadVideo = async (file, fileName, userId) => {
