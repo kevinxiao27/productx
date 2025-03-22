@@ -1,5 +1,5 @@
-import mildKeywords from './mildKeywords';
-import severeKeywords from './severeKeywords';
+import { mildKeywords } from './mildKeywords';
+import { severeKeywords } from './severeKeywords';
 
 const mildRegex = new RegExp(mildKeywords.join('|'), 'i');
 const severeRegex = new RegExp(severeKeywords.join('|'), 'i');

@@ -1,4 +1,4 @@
-const severeKeywords = [
+export const severeKeywords = [
   // Existing danger terms
   'kill',
   'gun',
@@ -48,5 +48,3 @@ const severeKeywords = [
   '10 80', // Chase in progress
   '10 99', // Officer needs help urgently
 ];
-
-module.exports = severeKeywords;

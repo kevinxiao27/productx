@@ -1,4 +1,4 @@
-import { analyzeAudio } from './analyzeAudio.js';
+import { analyzeAudio } from './analyzeAudio';
 
 (async () => {
   try {
