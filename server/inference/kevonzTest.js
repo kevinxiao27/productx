@@ -5,7 +5,7 @@
 const { AssemblyAI } = require('assemblyai');
 
 const client = new AssemblyAI({
-  apiKey: 'd8e56c20ce574e649af8a89694b8b49f',
+  apiKey: '',
 });
 
 const FILE_URL = 'https://assemblyaiusercontent.com/playground/5ty2u-NDfXN.wav';
