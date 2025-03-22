@@ -9,10 +9,6 @@ import {
 
 const router = express.Router();
 
-// API routes
-router.get("/data", getData);
-router.post("/items", createItem);
-
 // AlertEventLogs CRUD routes
 router.get("/alerts", getAllAlertEvents);
 router.get("/alerts/:id", getAlertEventById);

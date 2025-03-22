@@ -1,4 +1,5 @@
 import { supabase } from "../clients/supabase.js";
+import { emitNewAlert, emitUpdatedAlert, emitDeletedAlert } from "../utils/socket.js";
 
 // Get all alert events
 export const getAllAlertEvents = async (req, res) => {
@@ -46,6 +47,12 @@ export const createAlertEvent = async (req, res) => {
 
     if (error) throw error;
 
+    // Emit socket event for new alert
+    const io = req.app.get("io");
+    if (io) {
+      emitNewAlert(io, data[0]);
+    }
+
     res.status(201).json(data[0]);
   } catch (error) {
     console.error("Error creating alert event:", error);
@@ -71,6 +78,12 @@ export const updateAlertEvent = async (req, res) => {
       return res.status(404).json({ error: "Alert event not found" });
     }
 
+    // Emit socket event for updated alert
+    const io = req.app.get("io");
+    if (io) {
+      emitUpdatedAlert(io, data[0]);
+    }
+
     res.json(data[0]);
   } catch (error) {
     console.error("Error updating alert event:", error);
@@ -85,6 +98,12 @@ export const deleteAlertEvent = async (req, res) => {
     const { error } = await supabase.from("AlertEventLogs").delete().eq("id", id);
 
     if (error) throw error;
+
+    // Emit socket event for deleted alert
+    const io = req.app.get("io");
+    if (io) {
+      emitDeletedAlert(io, id);
+    }
 
     res.status(204).send();
   } catch (error) {
