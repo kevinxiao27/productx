@@ -260,8 +260,8 @@ export const createAlertEvent = async (req, res) => {
     if (io) {
       emitNewAlert(io, data[0]);
     }
-
-    res.status(201).json(data[0]);
+    console.log("Emitted new alert event");
+    return res.status(201).json(response[0]);
   } catch (error) {
     console.error("Error creating alert event:", error);
     res.status(500).json({ error: error.message });
