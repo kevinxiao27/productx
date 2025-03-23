@@ -1,51 +1,54 @@
-import axios from "axios";
-import fs from "fs";
-import dotenv from "dotenv";
-import { mapSentimentToDanger } from "./mapSentiment.js";
+import axios from 'axios';
+import fs from 'fs';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 export const analyzeAudio = async (filePath) => {
+  console.log('Analyzing audio from file:', filePath);
   const uploadRes = await axios({
-    method: "post",
-    url: "https://api.assemblyai.com/v2/upload",
+    method: 'post',
+    url: 'https://api.assemblyai.com/v2/upload',
     headers: { authorization: process.env.ASSEMBLY_API_KEY },
-    data: fs.createReadStream(filePath)
+    data: fs.createReadStream(filePath),
   });
+
+  console.log('File uploaded:', uploadRes.data);
 
   const audio_url = uploadRes.data.upload_url;
 
   const transcriptRes = await axios.post(
-    "https://api.assemblyai.com/v2/transcript",
+    'https://api.assemblyai.com/v2/transcript',
     {
       audio_url: audio_url,
-      sentiment_analysis: true
+      sentiment_analysis: true,
     },
     {
       headers: {
-        authorization: process.env.ASSEMBLY_API_KEY
-      }
+        authorization: process.env.ASSEMBLY_API_KEY,
+      },
     }
   );
 
   const transcriptId = transcriptRes.data.id;
 
-  let status = "processing";
-  while (status !== "completed") {
-    const res = await axios.get(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-      headers: { authorization: process.env.ASSEMBLY_API_KEY }
-    });
+  let status = 'processing';
+  while (status !== 'completed') {
+    const res = await axios.get(
+      `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
+      {
+        headers: { authorization: process.env.ASSEMBLY_API_KEY },
+      }
+    );
 
     status = res.data.status;
 
-    if (status === "completed") {
+    if (status === 'completed') {
       const sentimentResults = res.data.sentiment_analysis_results;
-      const dangerLevel = mapSentimentToDanger(sentimentResults);
 
       return {
         sentimentResults,
-        dangerLevel,
-        fullTranscript: res.data.text
+        fullTranscript: res.data.text,
       };
     }
 

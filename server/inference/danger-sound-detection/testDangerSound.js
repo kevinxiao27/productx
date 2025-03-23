@@ -1,4 +1,4 @@
-import { detectGunshot } from './detectGunshot.js';
+import { detectDangerSound } from './detectDangerSound.js';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 const filePath = resolve(__dirname, '../../temp_audio/test.wav');
 
 (async () => {
-  const result = await detectGunshot(filePath);
+  const result = await detectDangerSound(filePath);
   if (result.length === 0) {
     console.log('No danger sounds detected.');
   } else {

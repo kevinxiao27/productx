@@ -6,12 +6,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Returns [{ label: string, frames: number, confidence: number }]
-export async function detectGunshot(filePath) {
+export async function detectDangerSound(filePath) {
   if (!filePath) {
     throw new Error('filePath is undefined or null.');
   }
 
-  const scriptPath = resolve(__dirname, 'detect_gunshot.py');
+  const scriptPath = resolve(__dirname, 'detect_danger_sound.py');
   console.log('Running Python script at:', scriptPath);
   console.log('Passing audio file path:', filePath);
 
