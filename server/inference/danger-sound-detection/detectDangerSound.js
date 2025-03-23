@@ -41,28 +41,28 @@ export async function detectDangerSound(filePath) {
         return;
       }
 
-      const lines = stdoutData
+      const parsed = stdoutData
         .split('\n')
         .map((line) => line.trim())
-        .filter((line) => /^[1-3]\./.test(line)); // lines starting with 1., 2., or 3.
-
-      const parsed = lines
+        .filter((line) =>
+          /^[1-3]\.\s.+\s—\s\d+ frames, max confidence: [\d.]+$/.test(line)
+        )
         .map((line) => {
           const match = line.match(
-            /^\d+\.\s+\d+,[^,]+,(.+?)\s+—\s+(\d+)\s+frames, max confidence: ([\d.]+)/
+            /^\d+\.\s(.+?)\s—\s(\d+)\sframes, max confidence: ([\d.]+)$/
           );
           if (!match) return null;
 
-          const [_, label, frames, confidence] = match;
+          const [, label, frames, confidence] = match;
           return {
-            label: label.replace(/(^"|"$)/g, ''), // remove surrounding quotes if any
+            label,
             frames: parseInt(frames),
             confidence: parseFloat(confidence),
           };
         })
         .filter(Boolean);
 
-      resolve(parsed); // Return full list
+      resolve(parsed);
     });
 
     process.on('error', (err) => {
