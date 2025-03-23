@@ -65,11 +65,10 @@ export default function LiveMap() {
         <span className="ml-4">LONGITUDE: {coordinates.longitude}</span>
       </div>
       <div className="text-xs text-mediumGrey mb-3">{coordinates.location}</div>
-        <div
-          ref={mapContainerRef}
-          className="w-full h-[400px] rounded border border-gray-800"
-        />
-      )}
+      <div
+        ref={mapContainerRef}
+        className="w-full h-[400px] rounded border border-gray-800"
+      />
     </div>
   )
 }
