@@ -173,6 +173,8 @@ export const createAlertEvent = async (req, res) => {
     let video_url = null;
     let transcript = null;
 
+    if (!priority) priority = "no issue";
+
     validateLocation(location);
     // let priority = "no issue";
     let danger_words = {};
