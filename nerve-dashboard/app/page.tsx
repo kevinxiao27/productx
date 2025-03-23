@@ -12,12 +12,25 @@ import socket from "./socket"
 import axios from "axios"
 
 const MAX_TRANSCRIPT_CHAR_LEN = 20
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null)
   const [transcriptEntries, setTranscriptEntries] = useState<TranscriptEntry[]>([])
   const [currentLocation, setCurrentLocation] = useState<Coordinates>({ latitude: 49.2606, longitude: -123.246, location: "University Endowment Lands, Vancouver, BC, Canada" })
+
+  const [summary, setSummary] = useState<string>("")
+
+  async function handleEntryClick(operatorName: string) {
+    try {
+      const res = await axios.get(`${baseUrl}/api/alerts/summary/${operatorName}`)
+      const data = res.data;
+      setSummary(data.summary);
+    } catch (error) {
+      console.error("Failed to generate summary:", error)
+    }
+  }
 
   // Update time every second
   useEffect(() => {
@@ -31,9 +44,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchInitialTranscripts = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         console.log(baseUrl)
-        const res = await axios.get(`${baseUrl}/api/alerts`) // Or use env var
+        const res = await axios.get(`${baseUrl}/api/alerts`)
         const alerts = res.data
 
         const entries: TranscriptEntry[] = alerts
@@ -184,8 +196,8 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4">
-          <LiveTranscript entries={transcriptEntries} />
-          <Summary />
+          <LiveTranscript entries={transcriptEntries} onEntryClick={handleEntryClick} />
+          <Summary summary={summary}/>
         </div>
       </div>
     </div>

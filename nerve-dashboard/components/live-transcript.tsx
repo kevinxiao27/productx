@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils"
 
 interface LiveTranscriptProps {
   entries: TranscriptEntry[]
+  onEntryClick?: (operatorName: string) => void
 }
 
-export default function LiveTranscript({ entries }: LiveTranscriptProps) {
+export default function LiveTranscript({ entries, onEntryClick }: LiveTranscriptProps) {
   return (
     <div className="border border-gray-700 rounded-sm h-[500px] font-mono font-light overflow-auto">
       <h2 className="text-xl text-titleBlue p-4">LIVE TRANSCRIPT</h2>
@@ -13,7 +14,13 @@ export default function LiveTranscript({ entries }: LiveTranscriptProps) {
         {entries.map((entry) => (
           <div 
             key={entry.id} 
-            className={cn("border-b border-gray-800 relative", entry.critical ? "bg-highlightedRed" : "")}
+            className={cn(
+              "border-b border-gray-800 relative cursor-pointer transition-colors duration-200",
+              entry.critical
+                ? "bg-highlightedRed hover:bg-nerveRed/20"
+                : "hover:bg-white/5"
+            )}
+            onClick={() => onEntryClick?.(entry.sender)}
           >
             <div className="p-4">
               <div className="flex justify-between">
