@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import VideoRecorder from './VideoRecorder';
-import FileUploader from './FileUploader';
-
-type Tab = 'record' | 'upload';
+type Tab = 'record';
 
 export default function TabComponent() {
   const [activeTab, setActiveTab] = useState<Tab>('record');
@@ -30,25 +28,11 @@ export default function TabComponent() {
           >
             Record Video
           </button>
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'upload'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Upload File
-          </button>
         </nav>
       </div>
       
       <div className="mt-6">
-        {/* Using key to force unmount/remount when switching tabs */}
-        {activeTab === 'record' ? 
           <VideoRecorder key={`recorder-${key}`} /> : 
-          <FileUploader key={`uploader-${key}`} />
-        }
       </div>
     </div>
   );

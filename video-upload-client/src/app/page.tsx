@@ -6,9 +6,8 @@ export default function Home() {
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            Video Recorder & Uploader
+            VPD
           </h1>
-          
           <TabComponent />
         </div>
       </div>

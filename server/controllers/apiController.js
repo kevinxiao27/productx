@@ -169,7 +169,9 @@ const validateLocation = (location) => {
 // Create a new alert event
 export const createAlertEvent = async (req, res) => {
   try {
-    let { location, operator, priority } = req.body;
+    const location = JSON.parse(req.body.location);
+    const operator = req.body.operator;
+    let priority = req.body.priority;
     let video_url = null;
     let transcript = null;
 

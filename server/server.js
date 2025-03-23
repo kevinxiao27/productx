@@ -21,7 +21,7 @@ const httpServer = createServer(app);
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:3001",
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -31,11 +31,7 @@ const io = new Server(httpServer, {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000"
-  })
-);
+app.use(cors());
 
 // Make io accessible to routes
 app.set("io", io);

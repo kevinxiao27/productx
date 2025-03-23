@@ -9,7 +9,7 @@ export const extractAudioFromVideo = (videoBuffer, outputWavPath) => {
   return new Promise((resolve, reject) => {
     const tempInputPath = path.join(
       path.dirname(outputWavPath),
-      `input-${Date.now()}.mp4`
+      `input-${Date.now()}.wav`
     );
     fs.writeFileSync(tempInputPath, videoBuffer);
 
