@@ -125,7 +125,7 @@ export const getOperatorSummary = async (req, res) => {
         {
           role: "system",
           content:
-            "You are a safety analyst reviewing emergency operator communications. Provide a concise summary of key events, potential dangers, and operator actions based on the transcripts. Do not make these summaries longer than 60 words."
+            "You are a safety analyst reviewing emergency operator communications. Provide a concise summary of key events, potential dangers, and operator actions based on the transcripts. Do not make these summaries longer than 50 words."
         },
         {
           role: "user",
