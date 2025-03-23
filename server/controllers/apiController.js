@@ -100,6 +100,8 @@ export const getOperatorSummary = async (req, res) => {
       operator_name: operator
     });
 
+    console.log(data)
+
     if (error) {
       console.error("Supabase RPC error:", error);
       return res.status(500).json({ error: error.message });
@@ -132,7 +134,7 @@ export const getOperatorSummary = async (req, res) => {
           content: `Please summarize the following operator transcripts for ${operator}:\n\n${transcripts}`
         }
       ],
-      max_tokens: 350
+      max_tokens: 250
     });
 
     const summaryData = {
