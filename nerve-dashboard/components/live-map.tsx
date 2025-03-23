@@ -3,24 +3,29 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { Coordinates } from "@/lib/types";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
-export default function LiveMap() {
+// interface LiveMapProps {
+//   location: { latitude: number; longitude: number } | null
+// }
+
+export default function LiveMap({ latitude, longitude, location }: Coordinates) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
-  const coordinates = {
-    latitude: 49.2606,
-    longitude: -123.246,
-    location: "University Endowment Lands, Vancouver, BC, Canada"
-  };
+  // const coordinates = {
+  //   latitude: 49.2606,
+  //   longitude: -123.246,
+  //   location: "University Endowment Lands, Vancouver, BC, Canada"
+  // };
 
   useEffect(() => {
     const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
+      container: mapContainerRef.current!,
       style: "mapbox://styles/mapbox/dark-v11",
-      center: [coordinates.longitude, coordinates.latitude],
+      center: [longitude, latitude],
       zoom: 13
     });
 
@@ -61,10 +66,10 @@ export default function LiveMap() {
     <div className='border border-gray-700 p-4 rounded-sm'>
       <h2 className='text-xl font-light text-titleBlue mb-4'>LIVE MAP</h2>
       <div className='mb-2 text-sm text-mediumGrey'>
-        <span>LATITUDE: {coordinates.latitude}</span>
-        <span className='ml-4'>LONGITUDE: {coordinates.longitude}</span>
+        <span>LATITUDE: {latitude}</span>
+        <span className='ml-4'>LONGITUDE: {longitude}</span>
       </div>
-      <div className="text-xs text-mediumGrey mb-3">{coordinates.location}</div>
+      <div className="text-xs text-mediumGrey mb-3">{location}</div>
       <div ref={mapContainerRef} className='w-full h-[400px] rounded border border-gray-800' />
     </div>
   );
