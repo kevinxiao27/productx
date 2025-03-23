@@ -80,6 +80,14 @@ export async function analyzeDangerFromFile(path) {
       mildRegex.test(cleanedText)
     ) {
       dangerLevel = 'medium';
+      break;
+    }
+
+    for (const event of topDangerEvents) {
+      if (event.confidence > 0.3) {
+        dangerLevel = 'medium'
+        break;
+      }
     }
   }
 
