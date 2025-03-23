@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,9 +10,9 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  font-family: "Courier New", monospace;
+  /* color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb)); */
+  font-family: "IBM Plex Mono", monospace;
 }
 
 @layer utilities {
@@ -19,7 +21,7 @@ body {
   }
 }
 
-@layer base {
+/* @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -89,8 +91,8 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
-
+} */
+/* 
 @layer base {
   * {
     @apply border-border;
@@ -98,5 +100,4 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-}
-
+} */
