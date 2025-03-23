@@ -7,9 +7,12 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 export const extractAudioFromVideo = (videoBuffer, outputWavPath) => {
   return new Promise((resolve, reject) => {
+    const inputExt = path.extname(outputWavPath).toLowerCase();
+    const isWav = inputExt === '.wav';
+
     const tempInputPath = path.join(
       path.dirname(outputWavPath),
-      `input-${Date.now()}.wav`
+      `input-${Date.now()}${isWav ? '.wav' : '.mp4'}`
     );
 
     try {
@@ -22,6 +25,18 @@ export const extractAudioFromVideo = (videoBuffer, outputWavPath) => {
       return reject(new Error("Failed to write video buffer: " + e.message));
     }
 
+    // 🧠 Skip FFmpeg if input is already WAV — assume it's usable
+    if (isWav) {
+      try {
+        fs.copyFileSync(tempInputPath, outputWavPath);
+        fs.unlinkSync(tempInputPath);
+        return resolve();
+      } catch (e) {
+        return reject(new Error("Failed to copy WAV file directly: " + e.message));
+      }
+    }
+
+    // 🌀 Otherwise, extract audio from video
     ffmpeg(tempInputPath)
       .on('start', (cmdLine) => {
         console.log('FFmpeg command:', cmdLine);
