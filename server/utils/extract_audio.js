@@ -11,19 +11,36 @@ export const extractAudioFromVideo = (videoBuffer, outputWavPath) => {
       path.dirname(outputWavPath),
       `input-${Date.now()}.wav`
     );
-    fs.writeFileSync(tempInputPath, videoBuffer);
+
+    try {
+      if (!videoBuffer || videoBuffer.length === 0) {
+        return reject(new Error("Video buffer is empty or undefined"));
+      }
+
+      fs.writeFileSync(tempInputPath, videoBuffer);
+    } catch (e) {
+      return reject(new Error("Failed to write video buffer: " + e.message));
+    }
 
     ffmpeg(tempInputPath)
+      .on('start', (cmdLine) => {
+        console.log('FFmpeg command:', cmdLine);
+      })
+      .on('stderr', (stderrLine) => {
+        console.error('FFmpeg stderr:', stderrLine);
+      })
       .noVideo()
       .audioChannels(1)
       .audioFrequency(16000)
       .format('wav')
       .save(outputWavPath)
       .on('end', () => {
-        fs.unlinkSync(tempInputPath); // Clean up temp video file
+        fs.unlinkSync(tempInputPath); // Clean up
         resolve();
       })
       .on('error', (err) => {
+        console.error("FFmpeg error:", err);
+        fs.unlinkSync(tempInputPath);
         reject(err);
       });
   });
