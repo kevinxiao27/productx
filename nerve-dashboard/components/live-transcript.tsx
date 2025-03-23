@@ -7,7 +7,7 @@ interface LiveTranscriptProps {
 
 export default function LiveTranscript({ entries }: LiveTranscriptProps) {
   return (
-    <div className="border border-gray-700 rounded-sm h-[300px] font-mono font-light overflow-auto">
+    <div className="border border-gray-700 rounded-sm h-[500px] font-mono font-light overflow-auto">
       <h2 className="text-xl text-titleBlue p-4">LIVE TRANSCRIPT</h2>
       <div className="space-y-4">
         {entries.map((entry) => (

@@ -7,7 +7,7 @@ interface FieldUnitViewProps {
 
 export default function FieldUnitView({ unit }: FieldUnitViewProps) {
   return (
-    <div className="border border-gray-700 p-4 rounded-sm h-[300px]">
+    <div className="border border-gray-700 p-4 rounded-sm h-[400px]">
       <h2 className="text-xl mb-6 text-titleBlue font-light">FIELD UNIT VIEW</h2>
       <div className="mt-16 flex flex-col items-center">
         <h3 className="text-xl mb-2">{unit.name}</h3>

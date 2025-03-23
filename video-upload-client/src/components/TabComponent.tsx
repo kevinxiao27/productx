@@ -17,7 +17,7 @@ export default function TabComponent() {
   }, [activeTab]);
   
   return (
-    <div className="w-full">
+    <div className="w-full bg-nerveBlack">
       <div className="border-b border-gray-200">
         <nav className="flex -mb-px space-x-8" aria-label="Tabs">
           <button

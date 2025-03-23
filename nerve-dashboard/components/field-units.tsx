@@ -9,7 +9,7 @@ interface FieldUnitsProps {
 
 export default function FieldUnits({ units, onUnitSelect }: FieldUnitsProps) {
   return (
-    <div className="border border-gray-700 p-4 rounded-sm h-[300px] font-light overflow-auto">
+    <div className="border border-gray-700 p-4 rounded-sm h-[400px] font-light overflow-auto">
       <h2 className="text-xl mb-6 text-titleBlue">FIELD UNITS</h2>
       <ul className="space-y-6">
         {units.map((unit, index) => (

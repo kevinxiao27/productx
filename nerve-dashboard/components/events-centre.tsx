@@ -44,7 +44,7 @@ export default function EventsCentre() {
   ]
   
   return (
-    <div className="border border-gray-700 p-4 rounded-sm h-[300px] overflow-auto">
+    <div className="border border-gray-700 p-4 rounded-sm h-[266px] overflow-auto">
       <h2 className="text-xl font-light text-titleBlue mb-6">EVENTS CENTRE</h2>
       <div className="space-y-4">
         {events.map((event) => (
