@@ -1,85 +1,62 @@
-"use client"
+'use client'
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from 'react'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
 
 export default function LiveMap() {
-  const mapRef = useRef<HTMLCanvasElement>(null)
-
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+  
   const coordinates = {
     latitude: 49.2606,
     longitude: -123.246,
-    location: "University Endowment Lands, Vancouver, BC, Canada",
+    location: 'University Endowment Lands, Vancouver, BC, Canada',
   }
-
+  
   useEffect(() => {
-    if (!mapRef.current) return
-
-    const ctx = mapRef.current.getContext("2d")
-    if (!ctx) return
-
-    // Draw a simple map placeholder
-    ctx.fillStyle = "#1a1a1a"
-    ctx.fillRect(0, 0, mapRef.current.width, mapRef.current.height)
-
-    // Draw grid lines
-    ctx.strokeStyle = "#333"
-    ctx.lineWidth = 1
-
-    // Horizontal lines
-    for (let i = 0; i < mapRef.current.height; i += 30) {
-      ctx.beginPath()
-      ctx.moveTo(0, i)
-      ctx.lineTo(mapRef.current.width, i)
-      ctx.stroke()
-    }
-
-    // Vertical lines
-    for (let i = 0; i < mapRef.current.width; i += 30) {
-      ctx.beginPath()
-      ctx.moveTo(i, 0)
-      ctx.lineTo(i, mapRef.current.height)
-      ctx.stroke()
-    }
-
-    // Draw some markers
-    const markers = [
-      { x: 150, y: 120, color: "#6b9fff", label: "" },
-      { x: 250, y: 180, color: "#6b9fff", label: "" },
-      { x: 350, y: 150, color: "#6b9fff", label: "CHINVANICH, BENNY" },
-    ]
-
-    markers.forEach((marker) => {
-      // Draw circle
-      ctx.beginPath()
-      ctx.arc(marker.x, marker.y, 8, 0, Math.PI * 2)
-      ctx.fillStyle = marker.color
-      ctx.fill()
-
-      // Draw label if present
-      if (marker.label) {
-        ctx.fillStyle = "#000"
-        ctx.fillRect(marker.x - 60, marker.y + 15, 120, 20)
-        ctx.strokeStyle = "#6b9fff"
-        ctx.strokeRect(marker.x - 60, marker.y + 15, 120, 20)
-        ctx.fillStyle = "#fff"
-        ctx.font = "10px monospace"
-        ctx.textAlign = "center"
-        ctx.fillText(marker.label, marker.x, marker.y + 28)
-      }
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [coordinates.longitude, coordinates.latitude],
+      zoom: 13,
     })
-
-    // Draw crosshair in center
-    ctx.strokeStyle = "#fff"
-    ctx.beginPath()
-    ctx.moveTo(mapRef.current.width / 2 - 10, mapRef.current.height / 2)
-    ctx.lineTo(mapRef.current.width / 2 + 10, mapRef.current.height / 2)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(mapRef.current.width / 2, mapRef.current.height / 2 - 10)
-    ctx.lineTo(mapRef.current.width / 2, mapRef.current.height / 2 + 10)
-    ctx.stroke()
+    
+    mapRef.current = map
+    
+    // Define markers
+    const markers = [
+      { lng: -123.246, lat: 49.2606, color: '#6b9fff', label: '' },
+      { lng: -123.250, lat: 49.2620, color: '#6b9fff', label: '' },
+      { lng: -123.240, lat: 49.2590, color: '#6b9fff', label: 'CHINVANICH, BENNY' },
+    ]
+    
+    // Add markers to the map
+    markers.forEach(({ lng, lat, color, label }) => {
+      const el = document.createElement('div')
+      el.style.backgroundColor = color
+      el.style.width = '14px'
+      el.style.height = '14px'
+      el.style.borderRadius = '9999px'
+      
+      const marker = new mapboxgl.Marker(el).setLngLat([lng, lat])
+      
+      if (label) {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setText(label)
+        marker.setPopup(popup)
+      }
+      
+      marker.addTo(map)
+    })
+    
+    // Clean up on unmount
+    return () => {
+      if (map) map.remove()
+    }
   }, [])
-
+  
   return (
     <div className="border border-gray-700 p-4 rounded-sm">
       <h2 className="text-xl font-light text-titleBlue mb-4">LIVE MAP</h2>
@@ -88,8 +65,11 @@ export default function LiveMap() {
         <span className="ml-4">LONGITUDE: {coordinates.longitude}</span>
       </div>
       <div className="text-xs text-mediumGrey mb-3">{coordinates.location}</div>
-      <canvas ref={mapRef} width={400} height={300} className="w-full h-auto border border-gray-800" />
+        <div
+          ref={mapContainerRef}
+          className="w-full h-[400px] rounded border border-gray-800"
+        />
+      )}
     </div>
   )
 }
-
