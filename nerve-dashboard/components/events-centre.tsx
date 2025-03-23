@@ -45,7 +45,7 @@ export default function EventsCentre() {
   
   return (
     <div className="border border-gray-700 p-4 rounded-sm h-[300px] overflow-auto">
-      <h2 className="text-xl mb-6">EVENTS CENTRE</h2>
+      <h2 className="text-xl font-light text-titleBlue mb-6">EVENTS CENTRE</h2>
       <div className="space-y-4">
         {events.map((event) => (
           <div key={event.id}>
@@ -76,8 +76,8 @@ export default function EventsCentre() {
               
               {/* Title */}
               <div className="flex-grow ml-4">
-                <h3 className="text-xl text-gray-300">{event.title}</h3>
-                <p className="text-gray-500 text-sm">{event.timestamp} ({event.timeAgo})</p>
+                <h3 className="text-xl text-titleBlue">{event.title}</h3>
+                <p className="text-mediumGrey text-sm">{event.timestamp} ({event.timeAgo})</p>
               </div>
               
               {/* Status - absolute positioned to right */}
