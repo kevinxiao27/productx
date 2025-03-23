@@ -72,7 +72,6 @@ export async function analyzeDangerFromFile(filePath) {
 
     return {
       transcript: fullTranscript,
-      sentimentResults,
       dangerLevel: dangerLevel,
       topDangerEvents,
     };
