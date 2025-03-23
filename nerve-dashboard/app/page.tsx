@@ -7,7 +7,7 @@ import LiveTranscript from "@/components/live-transcript"
 import FieldUnitView from "@/components/field-unit-view"
 import EventsCentre from "@/components/events-centre"
 import Summary from "@/components/summary"
-import type { Unit, TranscriptEntry } from "@/lib/types"
+import type { Unit, TranscriptEntry, Coordinates } from "@/lib/types"
 import socket from "./socket"
 import axios from "axios"
 
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null)
   const [transcriptEntries, setTranscriptEntries] = useState<TranscriptEntry[]>([])
+  const [currentLocation, setCurrentLocation] = useState<Coordinates>({ latitude: 49.2606, longitude: -123.246, location: "University Endowment Lands, Vancouver, BC, Canada" })
 
   // Update time every second
   useEffect(() => {
@@ -70,13 +71,15 @@ export default function Dashboard() {
         timestamp: data.created_at,
         message: data.transcript.length > MAX_TRANSCRIPT_CHAR_LEN ? data.transcript.slice(0, MAX_TRANSCRIPT_CHAR_LEN) + "..." : data.transcript,
         sender: data.operator,
-        critical: data.priority === "danger"
+        critical: data.priority === "danger",
       }
 
       setTranscriptEntries((prev) => {
         const updated = [transcriptEntry, ...prev]
-        return updated.slice(0,30) // Keep only last 30
+        return updated.slice(0,30) // Keep only first 30
       })
+
+      setCurrentLocation({ latitude: data.latitude, longitude: data.longitude, location: "University Endowment Lands, Vancouver, BC, Canada" })
     })
 
     return () => {
@@ -176,7 +179,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4">
-          <LiveMap />
+          <LiveMap latitude={currentLocation.latitude} longitude={currentLocation.longitude} location={currentLocation.location}/>
           <EventsCentre />
         </div>
 
