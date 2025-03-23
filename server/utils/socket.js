@@ -21,5 +21,3 @@ export const emitDeletedAlert = (io, alertId) => {
 export const emitAllAlerts = (io, alertsData) => {
   io.to("alerts").emit("allAlerts", alertsData);
 };
-
-

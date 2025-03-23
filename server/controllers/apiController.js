@@ -5,7 +5,7 @@ import { extractAudioFromVideo } from "../utils/extract_audio.js";
 
 import { emitNewAlert, emitUpdatedAlert, emitDeletedAlert } from "../utils/socket.js";
 import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
+import fs, { read } from "fs";
 import path from "path";
 import os from "os";
 import { analyzeDangerFromFile } from "../utils/sentiment.js";
@@ -49,7 +49,12 @@ export const getAllAlertEvents = async (req, res) => {
           : null
     }));
 
-    res.json(alertEvents);
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("all", alertEvents);
+    }
+
+    return res.json(alertEvents);
   } catch (error) {
     console.error("Error fetching alert events:", error);
     res.status(500).json({ error: error.message });
@@ -130,11 +135,20 @@ export const getOperatorSummary = async (req, res) => {
       max_tokens: 350
     });
 
-    // Return the summary along with the event data
-    res.json({
+    const summaryData = {
       operator,
       summary
-    });
+    };
+
+    // Emit the summary via Socket.IO if available
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("operatorSummary", summaryData);
+      console.log(`Emitted operator summary for ${operator}`);
+    }
+
+    // Return the summary along with the event data
+    res.json(summaryData);
   } catch (error) {
     console.error("Error generating operator summary:", error);
     res.status(500).json({ error: error.message });
@@ -221,7 +235,7 @@ export const createAlertEvent = async (req, res) => {
       //   console.error('Error cleaning up temporary file:', cleanupError);
       // }
 
-      if (dangerLevel !== "no issue") {
+      if (priority !== "no issue") {
         // Upload to Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage.from("videos").upload(filePath, file.buffer, {
           contentType: file.mimetype
@@ -255,10 +269,18 @@ export const createAlertEvent = async (req, res) => {
 
     if (error) throw error;
 
+    const { data: response, error: readErr } = await supabase.rpc(GET_ONE, {
+      event_id: data[0].id
+    });
+
+    if (readErr) throw readErr;
+
+    console.log(response);
+
     // Emit socket event for new alert
     const io = req.app.get("io");
     if (io) {
-      emitNewAlert(io, data[0]);
+      emitNewAlert(io, response[0]);
     }
     console.log("Emitted new alert event");
     return res.status(201).json(response[0]);
