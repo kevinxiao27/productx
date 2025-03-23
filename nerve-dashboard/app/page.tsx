@@ -98,9 +98,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-gray-300 font-mono p-4">
+    <div className="min-h-screen bg-nerveBlack text-gray-300 font-mono p-4">
       <header className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl text-gray-400">NERVE</h1>
+        <h1 className="text-3xl text-titleBlue">NERVE</h1>
         <div className="flex space-x-4">
           <span className="text-xl">{formatTime(currentTime)}</span>
           <span className="text-xl">{currentTime.toISOString().split("T")[0]}</span>

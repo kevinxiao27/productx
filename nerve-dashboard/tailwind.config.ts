@@ -11,11 +11,21 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["Courier New", "monospace"],
+        display: ["IBM Plex Mono", "monospace"],
+        mono: ["IBM Plex Mono", "monospace"],
       },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        nerveBlack: "#111111",
+        titleBlue: "#A7AFC8",
+        mediumGrey: "#687086",
+        nerveGreen: "#26A85C",
+        nerveRed: "#F42560",
+        borderGrey: "#3F424C",
+        highlightedRed: "#3E1521",
+        highlightedGreen: "#173E28",
+        nerveBlue: "#2B81BB",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
