@@ -55,6 +55,12 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
+    socket.emit("subscribeToAlerts");
+
+    socket.on("alertSubscriptionSuccess", (msg) => {
+      console.log("Subscribed:", msg);
+    });
+
     socket.on('newAlert', (data) => {
       console.log('New alert received:', data)
 
@@ -68,13 +74,14 @@ export default function Dashboard() {
       }
 
       setTranscriptEntries((prev) => {
-        const updated = [...prev, transcriptEntry]
-        return updated.slice(-30) // Keep only last 30
+        const updated = [transcriptEntry, ...prev]
+        return updated.slice(0,30) // Keep only last 30
       })
     })
 
     return () => {
       socket.off('newAlert')
+      socket.off("alertSubscriptionSuccess");
     }
   }, [])
 
