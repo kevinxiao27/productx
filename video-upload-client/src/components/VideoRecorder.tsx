@@ -27,7 +27,7 @@ export default function VideoRecorder() {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 1280, height: 720 }, 
+        video: { facingMode: { ideal: 'environment' }, width: 1280, height: 720 }, 
         audio: true 
       });
       
@@ -44,36 +44,47 @@ export default function VideoRecorder() {
   // Start recording
   const startRecording = () => {
     if (!stream) return;
-    
+  
     chunksRef.current = [];
-    const mimeType = 'video/webm;codecs=vp9,opus';
-    
+  
+    // Use browser-compatible MIME type
+    let options = { mimeType: '' };
+  
+    if (MediaRecorder.isTypeSupported('video/mp4')) {
+      options.mimeType = 'video/mp4';
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+      options.mimeType = 'video/webm;codecs=vp8';
+    } else {
+      options = {};
+    }
+  
     try {
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
-      
+  
       mediaRecorder.ondataavailable = (event) => {
         if (event.data && event.data.size > 0) {
           chunksRef.current.push(event.data);
         }
       };
-      
+  
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const blob = new Blob(chunksRef.current, { type: mediaRecorder.mimeType });
         const videoURL = URL.createObjectURL(blob);
         setRecordedVideo(videoURL);
       };
-      
-      mediaRecorder.start(100); // Record in 100ms chunks
+  
+      mediaRecorder.start(100); // 100ms chunks
       setRecording(true);
     } catch (err) {
       console.error('MediaRecorder error:', err);
       setStatus({
         message: `MediaRecorder error: ${err instanceof Error ? err.message : String(err)}`,
-        isError: true
+        isError: true,
       });
     }
   };
+  
   
   // Stop recording
   const stopRecording = () => {
@@ -110,42 +121,38 @@ export default function VideoRecorder() {
   const uploadFile = async (file: File) => {
     setUploading(true);
     setUploadProgress(0);
-    
+  
     try {
       const filePath = `uploads/${Date.now()}-${file.name}`;
-      
-      const error = await supabase.storage
+  
+      const { data, error } = await supabase.storage
         .from('videos')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(Math.round(percent));
-          }
         });
-      
+  
       if (error) throw error;
-      
-      // Get public URL
+  
       const { data: urlData } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
-      
+  
       setStatus({
         message: `File uploaded successfully! URL: ${urlData.publicUrl}`,
-        isError: false
+        isError: false,
       });
     } catch (error) {
       console.error('Upload failed:', error);
       setStatus({
-        message: `Upload failed: ${error instanceof Error ? error.message : String(error)}`,
-        isError: true
+        message: `Upload failed: ${error instanceof Error ? error.message : JSON.stringify(error)}`,
+        isError: true,
       });
     } finally {
       setUploading(false);
     }
   };
+  
   
   return (
     <div className="space-y-4">
@@ -153,13 +160,14 @@ export default function VideoRecorder() {
         {!recordedVideo ? (
           <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden w-full max-w-2xl">
             {stream ? (
-              <video 
-                ref={videoRef} 
-                autoPlay 
+              <video
+                ref={videoRef}
+                autoPlay
                 playsInline
-                muted 
-                className="w-full h-full object-cover"
+                muted
+                className="w-full h-full object-cover transform scale-x-[-1]"
               />
+
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-gray-500">Camera preview will appear here</p>

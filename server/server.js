@@ -42,13 +42,25 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
-  // Send the client the current count of connections
+  // Emit current user count to all clients
   io.emit("userCount", { count: io.engine.clientsCount });
 
-  // Listen for client subscribing to alerts
+  // Subscribe client to alert updates
   socket.on("subscribeToAlerts", () => {
     socket.join("alerts");
     console.log(`Client ${socket.id} subscribed to alerts`);
+  });
+
+  // Listen for unit status updates
+  socket.on("unitStatusUpdate", (data) => {
+    console.log("🚨 Status update from unit:", data);
+    io.to("alerts").emit("unitStatus", data); // Send to all subscribed dispatchers
+  });
+
+  // Listen for unit location updates
+  socket.on("unitLocationUpdate", (data) => {
+    console.log("📍 Location update from unit:", data);
+    io.to("alerts").emit("unitLocation", data); // Send to all subscribed dispatchers
   });
 
   socket.on("disconnect", () => {
@@ -63,9 +75,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
+// Start server (use httpServer, not app.listen!)
+httpServer.listen(PORT, () => {
+  console.log(`API + WebSocket server running on port ${PORT}`);
 });
 
 export default app;
