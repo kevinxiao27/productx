@@ -1,24 +1,28 @@
-import { supabase } from "../clients/supabase.js";
-import { GET_ALL, GET_ONE } from "../utils/rpcFunctions.js";
-import { fileTypeFromBuffer } from "file-type";
-import { extractAudioFromVideo } from "../utils/extract_audio.js";
+import { supabase } from '../clients/supabase.js';
+import { GET_ALL, GET_ONE } from '../utils/rpcFunctions.js';
+import { fileTypeFromBuffer } from 'file-type';
+import { extractAudioFromVideo } from '../utils/extract_audio.js';
 
-import { emitNewAlert, emitUpdatedAlert, emitDeletedAlert } from "../utils/socket.js";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import path from "path";
-import os from "os";
-import { analyzeDangerFromFile } from "../utils/sentiment.js";
+import {
+  emitNewAlert,
+  emitUpdatedAlert,
+  emitDeletedAlert,
+} from '../utils/socket.js';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { analyzeDangerFromFile } from '../utils/sentiment.js';
 
 // Function to convert WKT to GeoJSON
 const convertWKTToGeoJSON = (wkt) => {
   const coordinates = wkt
     // .replace(/POINT\(([^)]+)\)/, "$1")
     .trim()
-    .split(" ");
+    .split(' ');
   return {
-    type: "Point",
-    coordinates: [parseFloat(coordinates[0]), parseFloat(coordinates[1])]
+    type: 'Point',
+    coordinates: [parseFloat(coordinates[0]), parseFloat(coordinates[1])],
   };
 };
 
@@ -42,15 +46,15 @@ export const getAllAlertEvents = async (req, res) => {
       location:
         event.longitude !== null && event.latitude !== null
           ? {
-              type: "Point",
-              coordinates: [event.longitude, event.latitude]
+              type: 'Point',
+              coordinates: [event.longitude, event.latitude],
             }
-          : null
+          : null,
     }));
 
     res.json(alertEvents);
   } catch (error) {
-    console.error("Error fetching alert events:", error);
+    console.error('Error fetching alert events:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -60,12 +64,12 @@ export const getAlertEventById = async (req, res) => {
   try {
     const { id } = req.params;
     const { data, error } = await supabase.rpc(GET_ONE, {
-      event_id: id
+      event_id: id,
     });
 
     if (error) {
-      if (error.code === "PGRST116") {
-        return res.status(404).json({ error: "Alert event not found" });
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Alert event not found' });
       }
       throw error;
     }
@@ -77,7 +81,7 @@ export const getAlertEventById = async (req, res) => {
 
     return res.json(data);
   } catch (error) {
-    console.error("Error fetching alert event:", error);
+    console.error('Error fetching alert event:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -87,7 +91,9 @@ const validateLocation = (location) => {
   console.log(location);
   console.log(location.coordinates);
   if (!location || !location.coordinates || location.coordinates.length !== 2) {
-    throw new Error("Invalid location format. Must include coordinates as an array of two numbers.");
+    throw new Error(
+      'Invalid location format. Must include coordinates as an array of two numbers.'
+    );
   }
 
   const [longitude, latitude] = location.coordinates;
@@ -101,12 +107,12 @@ export const createAlertEvent = async (req, res) => {
     let transcript = null;
 
     validateLocation(location);
-    let priority = "no issue";
+    let priority = 'no issue';
     let danger_words = {};
     // Handle video upload and audio analysis if a file was provided
 
     const file = req.file;
-    const fileExt = file.originalname.split(".").pop();
+    const fileExt = file.originalname.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
     const filePath = `videos/${fileName}`;
 
@@ -119,7 +125,7 @@ export const createAlertEvent = async (req, res) => {
     // fs.writeFileSync(tempFilePath, file.buffer);
 
     if (!req.file) {
-      return res.status(409).json({ error: "no file included" });
+      return res.status(409).json({ error: 'no file included' });
     }
 
     try {
@@ -127,7 +133,7 @@ export const createAlertEvent = async (req, res) => {
       await extractAudioFromVideo(file.buffer, tempWavPath);
 
       let transcriptVal = null;
-      let dangerLevel = "no issue";
+      let dangerLevel = 'no issue';
       let topDangerEvents = [];
 
       try {
@@ -140,7 +146,10 @@ export const createAlertEvent = async (req, res) => {
         try {
           fs.unlinkSync(tempWavPath);
         } catch (cleanupError) {
-          console.error("Error cleaning up temporary audio file:", cleanupError);
+          console.error(
+            'Error cleaning up temporary audio file:',
+            cleanupError
+          );
         }
       }
 
@@ -150,9 +159,9 @@ export const createAlertEvent = async (req, res) => {
 
       // @TODO pass transcript through LLM
 
-      console.log("Analysis results:", { dangerLevel, transcript });
+      console.log('Analysis results:', { dangerLevel, transcript });
     } catch (analysisError) {
-      console.error("Error analyzing audio:", analysisError);
+      console.error('Error analyzing audio:', analysisError);
       // Continue with upload even if analysis fails
     } finally {
       // Clean up the temporary file
@@ -163,14 +172,18 @@ export const createAlertEvent = async (req, res) => {
       // }
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage.from("videos").upload(filePath, file.buffer, {
-        contentType: file.mimetype
-      });
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+        });
 
       if (uploadError) throw uploadError;
 
       // Get the public URL for the uploaded file
-      const { data: urlData } = supabase.storage.from("videos").getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage
+        .from('videos')
+        .getPublicUrl(filePath);
       video_url = urlData.publicUrl;
     }
 
@@ -179,7 +192,7 @@ export const createAlertEvent = async (req, res) => {
 
     // Insert data into the database
     const { data, error } = await supabase
-      .from("AlertEventLogs")
+      .from('AlertEventLogs')
       .insert([
         {
           location: wktLocation,
@@ -187,22 +200,29 @@ export const createAlertEvent = async (req, res) => {
           priority, // Use analysis result if priority not provided
           transcript,
           video_url,
-          danger_words // Add the danger level from sentiment analysis
-        }
+          danger_words, // Add the danger level from sentiment analysis
+        },
       ])
       .select();
 
     if (error) throw error;
 
     // Emit socket event for new alert
-    const io = req.app.get("io");
+    const io = req.app.get('io');
+
+    const { data: response, error: getErr } = await supabase.rpc(GET_ONE, {
+      event_id: data[0].id,
+    });
+
+    if (getErr) throw getErr;
+
     if (io) {
-      emitNewAlert(io, data[0]);
+      emitNewAlert(io, response[0]);
     }
 
-    res.status(201).json(data[0]);
+    return res.status(201).json(response[0]);
   } catch (error) {
-    console.error("Error creating alert event:", error);
+    console.error('Error creating alert event:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -211,19 +231,22 @@ export const createAlertEvent = async (req, res) => {
 export const deleteAlertEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase.from("AlertEventLogs").delete().eq("id", id);
+    const { error } = await supabase
+      .from('AlertEventLogs')
+      .delete()
+      .eq('id', id);
 
     if (error) throw error;
 
     // Emit socket event for deleted alert
-    const io = req.app.get("io");
+    const io = req.app.get('io');
     if (io) {
       emitDeletedAlert(io, id);
     }
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting alert event:", error);
+    console.error('Error deleting alert event:', error);
     res.status(500).json({ error: error.message });
   }
 };
