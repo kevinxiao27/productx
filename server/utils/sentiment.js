@@ -14,15 +14,15 @@ function cleanText(text) {
     .trim();
 }
 
-export async function analyzeDangerFromFile(buffer) {
+export async function analyzeDangerFromFile(path) {
   //   console.log(`Analyzing danger from file: ${fileName}`);
   try {
     let topDangerEvents = [];
-    const { sentimentResults, fullTranscript } = await analyzeAudio(buffer);
+    const { sentimentResults, fullTranscript } = await analyzeAudio(path);
     console.log('Sentiment Results:', sentimentResults);
     //   @TODO: change from buffer to filepath
-    // const dangerSoundResults = await detectDangerSound(filePath);
-    const dangerSoundResults = [];
+    const dangerSoundResults = await detectDangerSound(path);
+    // const dangerSoundResults = [];
     topDangerEvents = dangerSoundResults;
 
     let dangerLevel = 'no issue';
@@ -34,17 +34,20 @@ export async function analyzeDangerFromFile(buffer) {
       // sentiment confidence
       const confidence = result.confidence;
 
-      // 1. Very high confidence = danger
-      if (sentiment === 'NEGATIVE' && confidence > 0.9) {
+      if (
+        sentiment === 'NEGATIVE' &&
+        confidence > 0.9 &&
+        dangerSoundResults.length > 0
+      ) {
         dangerLevel = 'danger';
         break;
       }
 
-      // 2. Medium-high confidence + any keyword = danger
+      // 2. Medium-high confidence + severe keyword => DANGER
       if (
         sentiment === 'NEGATIVE' &&
         confidence > 0.8 &&
-        (mildRegex.test(cleanedText) || severeRegex.test(cleanedText))
+        severeRegex.test(cleanedText)
       ) {
         dangerLevel = 'danger';
         break;
@@ -60,21 +63,10 @@ export async function analyzeDangerFromFile(buffer) {
         break;
       }
 
-      // 4. Neutral + severe keyword = danger
-      if (
-        sentiment === 'NEUTRAL' &&
-        confidence > 0.3 &&
-        confidence < 0.5 &&
-        (severeRegex.test(cleanedText) || dangerSoundResults.length > 0)
-      ) {
-        dangerLevel = 'danger';
-        break;
-      }
-
-      // 5. Medium-high confidence + mild keyword = medium
+      // 4. Medium-high confidence + mild keyword => MEDIUM
       if (
         sentiment === 'NEGATIVE' &&
-        confidence > 0.6 &&
+        confidence > 0.8 &&
         mildRegex.test(cleanedText)
       ) {
         dangerLevel = 'medium';
