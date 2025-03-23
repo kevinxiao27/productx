@@ -1,6 +1,7 @@
 import { supabase } from "../clients/supabase.js";
 import { GET_ALL } from "../utils/rpcFunctions.js";
 import { emitNewAlert, emitUpdatedAlert, emitDeletedAlert } from "../utils/socket.js";
+import { v4 as uuidv4 } from "uuid";
 
 // Function to convert WKT to GeoJSON
 const convertWKTToGeoJSON = (wkt) => {
@@ -67,16 +68,63 @@ export const getAlertEventById = async (req, res) => {
   }
 };
 
+// Function to validate the location format
+const validateLocation = (location) => {
+  console.log(location);
+  console.log(location.coordinates);
+  if (!location || !location.coordinates || location.coordinates.length !== 2) {
+    throw new Error("Invalid location format. Must include coordinates as an array of two numbers.");
+  }
+
+  const [longitude, latitude] = location.coordinates;
+};
+
 // Create a new alert event
 export const createAlertEvent = async (req, res) => {
   try {
-    const { location, operator, priority, transcript, video_url } = req.body;
+    const { location, operator, priority, transcript } = req.body;
+    let video_url = null;
 
+    try {
+      validateLocation(location);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+
+    // Handle video upload if a file was provided
+    if (req.file) {
+      const file = req.file;
+      const fileExt = file.originalname.split(".").pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `videos/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage.from("videos").upload(filePath, file.buffer, {
+        contentType: file.mimetype
+      });
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL for the uploaded file
+      const { data: urlData } = supabase.storage.from("videos").getPublicUrl(filePath);
+      video_url = urlData.publicUrl;
+    }
+
+    // Convert location to WKT format
     const wktLocation = `POINT(${location.coordinates[0]} ${location.coordinates[1]})`;
 
+    // Insert data into the database
     const { data, error } = await supabase
       .from("AlertEventLogs")
-      .insert([{ location: wktLocation, operator, priority, transcript, video_url }])
+      .insert([
+        {
+          location: wktLocation,
+          operator,
+          priority,
+          transcript,
+          video_url
+        }
+      ])
       .select();
 
     if (error) throw error;
@@ -90,48 +138,6 @@ export const createAlertEvent = async (req, res) => {
     res.status(201).json(data[0]);
   } catch (error) {
     console.error("Error creating alert event:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Update an alert event
-export const updateAlertEvent = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { location, operator, priority, transcript, video_url } = req.body;
-
-    let wktLocation = undefined;
-    if (location) {
-      wktLocation = `POINT(${location.coordinates[0]} ${location.coordinates[1]})`;
-    }
-
-    const { data, error } = await supabase
-      .from("AlertEventLogs")
-      .update({
-        location: wktLocation,
-        operator,
-        priority,
-        transcript,
-        video_url
-      })
-      .eq("id", id)
-      .select();
-
-    if (error) throw error;
-
-    if (data.length === 0) {
-      return res.status(404).json({ error: "Alert event not found" });
-    }
-
-    // Emit socket event for updated alert
-    const io = req.app.get("io");
-    if (io) {
-      emitUpdatedAlert(io, data[0]);
-    }
-
-    res.json(data[0]);
-  } catch (error) {
-    console.error("Error updating alert event:", error);
     res.status(500).json({ error: error.message });
   }
 };
