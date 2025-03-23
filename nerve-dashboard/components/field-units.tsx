@@ -9,7 +9,7 @@ interface FieldUnitsProps {
 
 export default function FieldUnits({ units, onUnitSelect }: FieldUnitsProps) {
   return (
-    <div className="border border-gray-700 p-4 rounded-sm h-[300px] overflow-auto">
+    <div className="border border-gray-700 p-4 rounded-sm h-[300px] font-light overflow-auto">
       <h2 className="text-xl mb-6 text-titleBlue">FIELD UNITS</h2>
       <ul className="space-y-6">
         {units.map((unit, index) => (
@@ -22,9 +22,9 @@ export default function FieldUnits({ units, onUnitSelect }: FieldUnitsProps) {
               <div className="text-white text-lg">{unit.name}</div>
               
               {/* Status - absolutely positioned to right */}
-              <span className={`absolute right-0 top-0 ${unit.status === "HEALTHY" ? "text-green-500" : "text-red-500"}`}>
+              <p className={`absolute right-0 top-0 font-bold ${unit.status === "HEALTHY" ? "text-nerveGreen" : "text-nerveRed"}`}>
                 {unit.status}
-              </span>
+              </p>
               
               {/* Role and ID */}
               <div className="text-gray-500">

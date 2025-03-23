@@ -82,12 +82,12 @@ export default function LiveMap() {
 
   return (
     <div className="border border-gray-700 p-4 rounded-sm">
-      <h2 className="text-xl mb-4">LIVE MAP</h2>
-      <div className="mb-2 text-sm">
+      <h2 className="text-xl font-light text-titleBlue mb-4">LIVE MAP</h2>
+      <div className="mb-2 text-sm text-mediumGrey">
         <span>LATITUDE: {coordinates.latitude}</span>
         <span className="ml-4">LONGITUDE: {coordinates.longitude}</span>
       </div>
-      <div className="text-xs text-gray-500 mb-3">{coordinates.location}</div>
+      <div className="text-xs text-mediumGrey mb-3">{coordinates.location}</div>
       <canvas ref={mapRef} width={400} height={300} className="w-full h-auto border border-gray-800" />
     </div>
   )
