@@ -14,13 +14,15 @@ function cleanText(text) {
     .trim();
 }
 
-export async function analyzeDangerFromFile(filePath) {
-  console.log('Analyzing danger from file:', filePath);
+export async function analyzeDangerFromFile(buffer) {
+  //   console.log(`Analyzing danger from file: ${fileName}`);
   try {
     let topDangerEvents = [];
-    const { sentimentResults, fullTranscript } = await analyzeAudio(filePath);
+    const { sentimentResults, fullTranscript } = await analyzeAudio(buffer);
     console.log('Sentiment Results:', sentimentResults);
-    const dangerSoundResults = await detectDangerSound(filePath);
+    //   @TODO: change from buffer to filepath
+    // const dangerSoundResults = await detectDangerSound(filePath);
+    const dangerSoundResults = [];
     topDangerEvents = dangerSoundResults;
 
     let dangerLevel = 'no issue';
@@ -67,6 +69,15 @@ export async function analyzeDangerFromFile(filePath) {
       ) {
         dangerLevel = 'danger';
         break;
+      }
+
+      // 5. Medium-high confidence + mild keyword = medium
+      if (
+        sentiment === 'NEGATIVE' &&
+        confidence > 0.6 &&
+        mildRegex.test(cleanedText)
+      ) {
+        dangerLevel = 'medium';
       }
     }
 
