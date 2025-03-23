@@ -169,12 +169,12 @@ const validateLocation = (location) => {
 // Create a new alert event
 export const createAlertEvent = async (req, res) => {
   try {
-    const { location, operator } = req.body;
+    let { location, operator, priority } = req.body;
     let video_url = null;
     let transcript = null;
 
     validateLocation(location);
-    let priority = "no issue";
+    // let priority = "no issue";
     let danger_words = {};
     // Handle video upload and audio analysis if a file was provided
 
