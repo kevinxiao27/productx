@@ -5,7 +5,6 @@ import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Returns [{ label: string, frames: number, confidence: number }]
 export async function detectDangerSound(filePath) {
   if (!filePath) {
     throw new Error('filePath is undefined or null.');
@@ -30,15 +29,15 @@ export async function detectDangerSound(filePath) {
     process.stderr.on('data', (data) => {
       const str = data.toString();
       stderrData += str;
-      console.error('PYTHON stderr:', str);
+      console.warn('PYTHON stderr (non-fatal):', str);
     });
 
     process.on('close', (code) => {
       console.log(`Python process exited with code ${code}`);
 
-      if (stderrData) {
-        reject(new Error('Python stderr:\n' + stderrData));
-        return;
+      if (code !== 0) {
+        // Only fail if process fails
+        return reject(new Error('Python process failed:\n' + stderrData));
       }
 
       const parsed = stdoutData

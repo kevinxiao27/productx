@@ -3,6 +3,10 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import librosa
 from collections import defaultdict
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Load YAMNet model and class names
 model = hub.load("https://tfhub.dev/google/yamnet/1")
