@@ -12,6 +12,7 @@ export type Database = {
       AlertEventLogs: {
         Row: {
           created_at: string
+          danger_words: Json | null
           id: string
           location: unknown | null
           operator: string | null
@@ -21,6 +22,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          danger_words?: Json | null
           id?: string
           location?: unknown | null
           operator?: string | null
@@ -30,6 +32,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          danger_words?: Json | null
           id?: string
           location?: unknown | null
           operator?: string | null
@@ -902,6 +905,36 @@ export type Database = {
         }
         Returns: unknown
       }
+      get_all_event_coordinates: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          created_at: string
+          longitude: number
+          latitude: number
+        }[]
+      }
+      get_event_coordinates_by_id:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: {
+              id: string
+              created_at: string
+              longitude: number
+              latitude: number
+            }[]
+          }
+        | {
+            Args: {
+              event_id: string
+            }
+            Returns: {
+              id: string
+              created_at: string
+              longitude: number
+              latitude: number
+            }[]
+          }
       get_proj4_from_srid: {
         Args: {
           "": number
