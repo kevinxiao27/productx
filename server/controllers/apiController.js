@@ -203,14 +203,14 @@ export const createAlertEvent = async (req, res) => {
 
     try {
       const tempWavPath = path.join(os.tmpdir(), `${uuidv4()}.wav`);
-      await extractAudioFromVideo(file.buffer, tempWavPath);
+      // await extractAudioFromVideo(file.buffer, tempWavPath);
 
       let transcriptVal = null;
       let dangerLevel = "no issue";
       let topDangerEvents = [];
 
       try {
-        const result = await analyzeDangerFromFile(tempWavPath);
+        const result = await analyzeDangerFromFile(file.buffer);
         transcriptVal = result.transcript;
         dangerLevel = result.dangerLevel;
         topDangerEvents = result.topDangerEvents;

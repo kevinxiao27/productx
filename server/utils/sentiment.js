@@ -14,7 +14,7 @@ function cleanText(text) {
     .trim();
 }
 
-export async function analyzeDangerFromFile(path) {
+export async function analyzeDangerFromFile(fileBuffer) {
   let sentimentResults = [];
   let fullTranscript = null;
   let dangerLevel = 'no issue';
@@ -22,7 +22,7 @@ export async function analyzeDangerFromFile(path) {
 
   // First: try to analyze the audio for transcript + sentiment
   try {
-    const result = await analyzeAudio(path);
+    const result = await analyzeAudio(fileBuffer);
     sentimentResults = result.sentimentResults;
     fullTranscript = result.fullTranscript;
     console.log('Sentiment Results:', sentimentResults);
@@ -30,12 +30,12 @@ export async function analyzeDangerFromFile(path) {
     console.error('Error during sentiment analysis:', err.message);
   }
 
-  // Next: try to detect danger sounds
-  try {
-    topDangerEvents = await detectDangerSound(path);
-  } catch (err) {
-    console.error('Error during danger sound detection:', err.message);
-  }
+  // // Next: try to detect danger sounds
+  // try {
+  //   topDangerEvents = await detectDangerSound(path);
+  // } catch (err) {
+  //   console.error('Error during danger sound detection:', err.message);
+  // }
 
   // Now calculate the danger level — even if sentiment or sound failed
   for (const result of sentimentResults) {
@@ -46,8 +46,8 @@ export async function analyzeDangerFromFile(path) {
     // 1. High confidence + danger sound => DANGER
     if (
       sentiment === 'NEGATIVE' &&
-      confidence > 0.9 &&
-      topDangerEvents.length > 0
+      confidence > 0.9
+      // topDangerEvents.length > 0
     ) {
       dangerLevel = 'danger';
       break;
@@ -67,7 +67,7 @@ export async function analyzeDangerFromFile(path) {
     if (
       sentiment === 'NEGATIVE' &&
       confidence > 0.5 &&
-      (severeRegex.test(cleanedText) || topDangerEvents.length > 0)
+      (severeRegex.test(cleanedText))
     ) {
       dangerLevel = 'danger';
       break;
@@ -81,13 +81,6 @@ export async function analyzeDangerFromFile(path) {
     ) {
       dangerLevel = 'medium';
       break;
-    }
-
-    for (const event of topDangerEvents) {
-      if (event.confidence > 0.3) {
-        dangerLevel = 'medium'
-        break;
-      }
     }
   }
 

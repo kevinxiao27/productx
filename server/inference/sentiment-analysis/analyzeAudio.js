@@ -4,15 +4,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const analyzeAudio = async (filePath) => {
-  console.log('🔍 Analyzing audio at path:', filePath);
+export const analyzeAudio = async (fileBuffer) => {
+  console.log('🔍 Analyzing audio at path');
 
   // Upload audio file to AssemblyAI
   const uploadRes = await axios({
     method: 'post',
     url: 'https://api.assemblyai.com/v2/upload',
     headers: { authorization: process.env.ASSEMBLY_API_KEY },
-    data: fs.createReadStream(filePath), // <--- Changed here
+    data: fileBuffer, // <--- Changed here
   });
 
   console.log('✅ File uploaded:', uploadRes.data);
