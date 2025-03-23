@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import apiRoutes from './routes/api.js';
+import cors from "cors"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,9 @@ const io = new SocketIOServer(httpServer, {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+}));
 
 // Make io accessible to routes
 app.set('io', io);
