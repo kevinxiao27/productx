@@ -114,7 +114,7 @@ export default function Dashboard() {
           .map((a) => ({
             id: a.id,
             timestamp: a.created_at,
-            message: a.transcript.length > MAX_TRANSCRIPT_CHAR_LEN ? a.transcript.slice(0, MAX_TRANSCRIPT_CHAR_LEN) + "..." : a.transcript,
+            message: a.transcript ? a.transcript.length > MAX_TRANSCRIPT_CHAR_LEN ? a.transcript.slice(0, MAX_TRANSCRIPT_CHAR_LEN) + "..." : a.transcript : "status: same",
             sender: a.operator,
             critical: a.priority === "danger",
             videoUrl: a.video_url // Make sure to use the correct field name
